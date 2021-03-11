@@ -1,8 +1,8 @@
 <?php
 
-namespace Ibra;
+namespace Polkovnik;
 
-use Ibra\Exception\DockerSocketNotFound;
+use Polkovnik\Exception\DockerSocketNotFound;
 use Symfony\Component\HttpClient\CurlHttpClient;
 
 class DockerClient
@@ -17,7 +17,7 @@ class DockerClient
     private $dockerApiEndpoint = 'http://localhost/v1.41';
 
     /** @var string  */
-    private $unixSocket = '/var/run/docker.socksss';
+    private $unixSocket = '/var/run/docker.sock';
 
     /**
      * DockerClient constructor.

@@ -1,5 +1,5 @@
-PHP Docker client
-=================
+ PHP Docker client
+==================
 > Docker API driver for PHP.
 
 **Warning:** This package is not yet production ready, not yet fully tested, use on your own risk.

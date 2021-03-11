@@ -1,6 +1,6 @@
 <?php
 
-namespace Ibra\Exception;
+namespace Polkovnik\Exception;
 
 class DockerSocketNotFound extends \Exception
 {
