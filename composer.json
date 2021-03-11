@@ -1,5 +1,6 @@
 {
     "name": "ibragim64/php-docker-api",
+    "version": "1.41.0",
     "description": "Docker APIs driver for PHP.",
     "type": "library",
     "license": "MIT",
