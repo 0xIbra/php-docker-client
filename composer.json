@@ -1,0 +1,25 @@
+{
+    "name": "ibragim64/php-docker-api",
+    "description": "Docker APIs driver for PHP.",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Ibragim Abubakarov",
+            "email": "ibragim.ai95@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Ibra\\": "src/"
+        }
+    },
+    "require": {
+        "ext-curl": "*",
+        "ext-json": "*",
+        "symfony/http-client": "^5.2"
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.2"
+    }
+}
