@@ -1,6 +1,6 @@
 {
     "name": "polkovnik/php-docker-client",
-    "version": "1.41.0",
+    "version": "1.41.1",
     "description": "Docker APIs driver for PHP.",
     "type": "library",
     "license": "MIT",
@@ -18,9 +18,9 @@
     "require": {
         "ext-curl": "*",
         "ext-json": "*",
-        "symfony/http-client": "^5.2"
+        "symfony/http-client": ">=3.0"
     },
     "require-dev": {
-        "symfony/var-dumper": "^5.2"
+        "symfony/var-dumper": ">=3.0"
     }
 }

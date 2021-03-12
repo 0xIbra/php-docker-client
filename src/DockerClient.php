@@ -223,6 +223,23 @@ class DockerClient
     }
 
     /**
+     * @param string $id
+     *
+     * @return bool
+     *
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function deleteContainer($id)
+    {
+        $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
+
+        return $response->getStatusCode() === 204;
+    }
+
+    /**
      * Deletes stopped containers
      *
      * @return array
