@@ -1,8 +1,8 @@
 <?php
 
-namespace Polkovnik;
+namespace Polkovnik\Component;
 
-use Polkovnik\Exception\DockerSocketNotFound;
+use Polkovnik\Component\Exception\DockerSocketNotFound;
 use Symfony\Component\HttpClient\CurlHttpClient;
 
 class DockerClient
@@ -207,6 +207,7 @@ class DockerClient
 
     /**
      * @param $id
+     * @param string $level
      *
      * @return string
      *
@@ -215,9 +216,23 @@ class DockerClient
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function getContainerLogs($id)
+    public function getContainerLogs($id, $level = 'all')
     {
-        $response = $this->request('GET', sprintf('/containers/%s/logs?stdout=true&stderr=true&timestamps=false', $id), [], false);
+        $endpoint = sprintf('/containers/%s/logs', $id);
+        $query = [];
+        if ($level === 'all') {
+            $query = ['stdout' => 'true', 'stderr' => 'true'];
+        } else if ($level === 'out') {
+            $query = ['stdout' => 'true'];
+        } else if ($level === 'error') {
+            $query = ['stderr' => 'true'];
+        }
+
+        if (!empty($query)) {
+            $endpoint .= '?' . http_build_query($query);
+        }
+
+        $response = $this->request('GET', $endpoint, [], false);
 
         return $response->getContent();
     }
