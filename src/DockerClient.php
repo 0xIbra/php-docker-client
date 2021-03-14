@@ -1,8 +1,8 @@
 <?php
 
-namespace Polkovnik\Component;
+namespace Polkovnik\Component\DockerClient;
 
-use Polkovnik\Component\Exception\DockerSocketNotFound;
+use Polkovnik\Component\DockerClient\Exception\DockerSocketNotFound;
 use Symfony\Component\HttpClient\CurlHttpClient;
 
 class DockerClient
@@ -207,6 +207,21 @@ class DockerClient
 
     /**
      * @param $id
+     *
+     * @return mixed|\Symfony\Contracts\HttpClient\ResponseInterface
+     *
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     */
+    public function getContainerStats($id)
+    {
+        return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=true', $id));
+    }
+
+    /**
+     * @param $id
      * @param string $level
      *
      * @return string
@@ -283,6 +298,17 @@ class DockerClient
 
 
 //    DOCKER IMAGES
+
+    public function imageExists($name)
+    {
+        try {
+            $response = $this->inspectImage($name);
+
+            return !empty($response);
+        } catch (\Exception $exception) {}
+
+        return false;
+    }
 
     public function listImages($label = null)
     {

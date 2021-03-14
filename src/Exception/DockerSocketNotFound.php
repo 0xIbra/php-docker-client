@@ -1,6 +1,6 @@
 <?php
 
-namespace Polkovnik\Component\Exception;
+namespace Polkovnik\Component\DockerClient\Exception;
 
 class DockerSocketNotFound extends \Exception
 {
