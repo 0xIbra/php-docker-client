@@ -18,7 +18,8 @@
 - [imageExists($id)](#imageexists) : bool
 
 #### Methods
-##### __construct()
+
+#### __construct()
 DockerClient constructor.
 ```
 public __construct($options = [])
@@ -30,7 +31,7 @@ $options : array
 - DockerSocketNotFound
 
 
-##### listContainers()
+#### listContainers()
 Returns a list of containers.
 ```
 public listContainers() : array
@@ -40,7 +41,7 @@ public listContainers() : array
 array -
 
 
-##### stopContainer()
+#### stopContainer()
 Stops a running container.
 ```
 public stopContainer($id) : bool
@@ -53,7 +54,7 @@ $id: string
 bool -
 
 
-##### startContainer()
+#### startContainer()
 Starts a newly created container.
 ```
 public startContainer($id) : bool
@@ -66,7 +67,7 @@ $id: string
 bool -
 
 
-##### runContainer()
+#### runContainer()
 Creates and starts a new container.
 ```
 public runContainer($name, $config) : string|false
@@ -80,7 +81,7 @@ $config: array - refer to official [Docker API documentation](https://docs.docke
 string -
 bool -
 
-##### deleteContainer()
+#### deleteContainer()
 Removes a stopped container.
 ```
 public deleteContainer() : bool
@@ -93,7 +94,7 @@ $id: string
 bool -
 
 
-##### inspectContainer()
+#### inspectContainer()
 Retrieves all container relatated information.
 ```
 public inspectContainer($id) : array
@@ -107,7 +108,7 @@ array -
 
 
 
-##### getContainerStats()
+#### getContainerStats()
 Retrive container usage statistics.
 ```
 public getContainerStats($id) : array
@@ -120,7 +121,7 @@ $id: string
 array -
 
 
-##### getContainerLogs()
+#### getContainerLogs()
 Retrieves logs from container.
 ```
 public getContainerLogs($id) : string
@@ -132,7 +133,7 @@ $id: string
 string -
 
 
-##### pruneContainers()
+#### pruneContainers()
 Deletes all stopped containers.
 ```
 public pruneContainers() : array
@@ -143,7 +144,7 @@ array -
 
 
 
-##### listImages()
+#### listImages()
 Returns a list of containers.
 ```
 public listImages() : array
@@ -154,7 +155,7 @@ array -
 
 
 
-##### inspectImage()
+#### inspectImage()
 Retrieves all container relatated information.
 ```
 public inspectImage($id) : array
@@ -167,7 +168,7 @@ $id: string
 array -
 
 
-##### imageExists()
+#### imageExists()
 Retrieves all container relatated information.
 ```
 public imageExists($id) : bool
