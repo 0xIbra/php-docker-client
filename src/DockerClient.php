@@ -207,6 +207,7 @@ class DockerClient
 
     /**
      * @param $id
+     * @param bool $oneShot
      *
      * @return mixed|\Symfony\Contracts\HttpClient\ResponseInterface
      *
@@ -215,9 +216,9 @@ class DockerClient
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function getContainerStats($id)
+    public function getContainerStats($id, $oneShot = false)
     {
-        return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=true', $id));
+        return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=%s', $id, $oneShot));
     }
 
     /**
