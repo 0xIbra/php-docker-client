@@ -2,8 +2,12 @@
 
 namespace Polkovnik\Component\DockerClient;
 
+use Polkovnik\Component\DockerClient\Exception\BadParameterException;
 use Polkovnik\Component\DockerClient\Exception\DockerSocketNotFound;
+use Polkovnik\Component\DockerClient\Exception\ResourceBusyException;
+use Polkovnik\Component\DockerClient\Exception\ResourceNotFound;
 use Symfony\Component\HttpClient\CurlHttpClient;
+use Symfony\Component\HttpClient\Exception\ClientException;
 
 class DockerClient
 {
@@ -49,12 +53,14 @@ class DockerClient
     {
         try {
             return $this->info();
-        } catch (\Exception $exception) {
+        } catch (\Exception $e) {
             $search = 'failed binding local connection end';
-            if (str_contains(strtolower($exception->getMessage()), $search)) {
+            if (str_contains(strtolower($e->getMessage()), $search)) {
                 $text = sprintf('Could not bind to docker socket at %s', $this->unixSocket);
                 throw new DockerSocketNotFound($text);
             }
+
+            throw $e;
         }
     }
 
@@ -74,17 +80,11 @@ class DockerClient
     private function request($method, $url, $options = [], $resolveResponse = true)
     {
         $options = array_replace_recursive(['bindto' => $this->unixSocket], $options);
-
-        try {
-            $response =  $this->http->request($method, $url, $options);
-
-            if ($resolveResponse) {
-                return json_decode($response->getContent(), true);
-            } else {
-                return $response;
-            }
-        } catch (\Exception $exception) {
-            throw $exception;
+        $response =  $this->http->request($method, $url, $options);
+        if ($resolveResponse) {
+            return json_decode($response->getContent(), true);
+        } else {
+            return $response;
         }
     }
 
@@ -106,27 +106,47 @@ class DockerClient
     /**
      * Returns a list of containers
      *
-     * @param string $label
+     * @param array $options
      *
      * @return array|null
      *
-     * @throws \Exception
+     * @throws BadParameterException
+     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
+     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function listContainers($label = null)
+    public function listContainers($options = [])
     {
         $endpoint = '/containers/json';
-        $query = ['all' => true];
-        if (!empty($label)) {
-            $filters = ['label' => [$label]];
-            $query['filters'] = json_encode($filters);
+        $query = [];
+        $filters = [];
+        if (!empty($options['label'])) {
+            $filters['label'] = [$options['label']];
+        }
+        if (!empty($options['all'])) {
+            $filters['all'] = $options['all'];
+        }
+        if (!empty($options['limit'])) {
+            $filters['limit'] = $options['limit'];
         }
 
+        $query['filters'] = json_encode($filters);
         $query = http_build_query($query);
         if (!empty($query)) {
             $endpoint .= '?' . $query;
         }
 
-        return $this->request('GET', $endpoint);
+        try {
+            return $this->request('GET', $endpoint);
+        } catch (ClientException $e) {
+            $code = $e->getCode();
+            if ($code === 400) {
+                throw new BadParameterException($e->getMessage(), $e->getCode());
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -138,12 +158,23 @@ class DockerClient
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws ResourceNotFound
      */
     public function stopContainer($id)
     {
-        $response = $this->request('POST', sprintf('/containers/%s/stop', $id), [], false);
-        if ($response->getStatusCode() === 204) {
-            return true;
+        try {
+            $response = $this->request('POST', sprintf('/containers/%s/stop', $id));
+            if ($response->getStatusCode() === 204) {
+                return true;
+            }
+        } catch (ClientException $e) {
+            $code = $e->getCode();
+            if ($code === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, $e->getCode());
+            }
+
+            throw $e;
         }
 
         return false;
@@ -161,7 +192,16 @@ class DockerClient
      */
     public function startContainer($id)
     {
-        return $this->request('POST', sprintf('/containers/%s/start', $id));
+        try {
+            return $this->request('POST', sprintf('/containers/%s/start', $id));
+        } catch (ClientException $e) {
+            if ($e->getCode() === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, $e->getCode(), $e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -202,7 +242,16 @@ class DockerClient
      */
     public function inspectContainer($id)
     {
-        return $this->request('GET', sprintf('/containers/%s/json', $id));
+        try {
+            return $this->request('GET', sprintf('/containers/%s/json', $id));
+        } catch (ClientException $e) {
+            if ($e->getCode() === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, 404, $e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -218,7 +267,16 @@ class DockerClient
      */
     public function getContainerStats($id, $oneShot = false)
     {
-        return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=%s', $id, $oneShot));
+        try {
+            return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=%s', $id, $oneShot));
+        } catch (ClientException $e) {
+            if ($e->getCode() === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, 404, $e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -248,12 +306,21 @@ class DockerClient
             $endpoint .= '?' . http_build_query($query);
         }
 
-        $response = $this->request('GET', $endpoint, [], false);
+        try {
+            $response = $this->request('GET', $endpoint, [], false);
 
-        $text = $response->getContent();
-        $text = preg_replace('/(?!\n)[\p{Cc}]/', '', $text);
+            $text = $response->getContent();
+            $text = preg_replace('/(?!\n)[\p{Cc}]/', '', $text);
 
-        return $text;
+            return $text;
+        } catch (ClientException $e) {
+            if ($e->getCode() === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, 404, $e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -268,9 +335,24 @@ class DockerClient
      */
     public function deleteContainer($id)
     {
-        $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
+        try {
+            $response = $this->request('DELETE', sprintf('/containers/%s', $id));
 
-        return $response->getStatusCode() === 204;
+            return $response->getStatusCode() === 204;
+        } catch (ClientException $e) {
+            $code = $e->getCode();
+            if ($code === 400) {
+                throw new BadParameterException($e->getMessage(), 400, $e);
+            } else if ($code === 404) {
+                $text = sprintf('No such container: %s', $id);
+                throw new ResourceNotFound($text, 404, $e);
+            } else if ($code === 409) {
+                $text = sprintf('You cannot remove a running container: %s. Stop the container before attempting removal or force remove', $id);
+                throw new ResourceBusyException($text, 409, $e);
+            }
+
+            throw $e;
+        }
     }
 
     /**
@@ -306,7 +388,7 @@ class DockerClient
             $response = $this->inspectImage($name);
 
             return !empty($response);
-        } catch (\Exception $exception) {}
+        } catch (\Exception $e) {}
 
         return false;
     }
@@ -327,6 +409,15 @@ class DockerClient
 
     public function inspectImage($nameOrId)
     {
-        return $this->request('GET', sprintf('/images/%s/json', $nameOrId));
+        try {
+            return $this->request('GET', sprintf('/images/%s/json', $nameOrId));
+        } catch (ClientException $e) {
+            if ($e->getCode() === 404) {
+                $text = sprintf('No such image: %s', $nameOrId);
+                throw new ResourceNotFound($text, 404, $e);
+            }
+
+            throw $e;
+        }
     }
 }
