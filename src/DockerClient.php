@@ -162,7 +162,7 @@ class DockerClient
     public function stopContainer($id)
     {
         try {
-            $response = $this->request('POST', sprintf('/containers/%s/stop', $id));
+            $response = $this->request('POST', sprintf('/containers/%s/stop', $id), [], false);
             if ($response->getStatusCode() === 204) {
                 return true;
             }
@@ -335,7 +335,7 @@ class DockerClient
     public function deleteContainer($id)
     {
         try {
-            $response = $this->request('DELETE', sprintf('/containers/%s', $id));
+            $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
 
             return $response->getStatusCode() === 204;
         } catch (ClientException $e) {
