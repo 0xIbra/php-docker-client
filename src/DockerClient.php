@@ -119,11 +119,7 @@ class DockerClient
     public function listContainers($options = [])
     {
         $endpoint = '/containers/json';
-        $query = [];
         $filters = [];
-        if (!empty($options['label'])) {
-            $filters['label'] = [$options['label']];
-        }
         if (!empty($options['all'])) {
             $filters['all'] = $options['all'];
         }
@@ -131,12 +127,15 @@ class DockerClient
             $filters['limit'] = $options['limit'];
         }
 
-        $query['filters'] = json_encode($filters);
-        $query = http_build_query($query);
-        if (!empty($query)) {
-            $endpoint .= '?' . $query;
+        if (!empty($options['filters'])) {
+            $filters['filters'] = $options['filters'];
         }
 
+        if (!empty($filters)) {
+            $endpoint .= '?' . http_build_query($filters);
+        }
+
+        $endpoint = urldecode($endpoint);
         try {
             return $this->request('GET', $endpoint);
         } catch (ClientException $e) {
