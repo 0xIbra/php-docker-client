@@ -1,6 +1,6 @@
 {
     "name": "polkovnik/php-docker-client",
-    "version": "1.41.8",
+    "version": "1.41.9",
     "description": "Docker APIs driver for PHP.",
     "homepage": "https://gtihub.com/ibragim64/php-docker-client",
     "type": "library",
