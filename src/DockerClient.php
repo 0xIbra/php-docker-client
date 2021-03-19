@@ -2,16 +2,16 @@
 
 namespace Polkovnik\Component\DockerClient;
 
+use GuzzleHttp\Exception\GuzzleException;
 use Polkovnik\Component\DockerClient\Exception\BadParameterException;
 use Polkovnik\Component\DockerClient\Exception\DockerSocketNotFound;
 use Polkovnik\Component\DockerClient\Exception\ResourceBusyException;
 use Polkovnik\Component\DockerClient\Exception\ResourceNotFound;
-use Symfony\Component\HttpClient\CurlHttpClient;
-use Symfony\Component\HttpClient\Exception\ClientException;
+use GuzzleHttp\Client as HttpClient;
 
 class DockerClient
 {
-    /** @var CurlHttpClient */
+    /** @var HttpClient */
     private $http;
 
     /** @var array */
@@ -38,7 +38,7 @@ class DockerClient
             $this->dockerApiEndpoint = $options['docker_base_uri'];
         }
 
-        $this->http = new CurlHttpClient([
+        $this->http = new HttpClient([
             'base_uri' => $this->dockerApiEndpoint,
         ]);
 
@@ -70,33 +70,25 @@ class DockerClient
      * @param array $options
      * @param bool $resolveResponse
      *
-     * @return mixed|\Symfony\Contracts\HttpClient\ResponseInterface
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
      */
     private function request($method, $url, $options = [], $resolveResponse = true)
     {
-        $options = array_replace_recursive(['bindto' => $this->unixSocket], $options);
+        $options = array_replace_recursive(['curl' => [CURLOPT_UNIX_SOCKET_PATH => $this->unixSocket]], $options);
         $response =  $this->http->request($method, $url, $options);
         if ($resolveResponse) {
-            return json_decode($response->getContent(), true);
+            return json_decode($response->getBody()->getContents(), true);
         } else {
             return $response;
         }
     }
 
     /**
-     * Retrieves information about the Docker engine.
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
-     * @return mixed|\Symfony\Contracts\HttpClient\ResponseInterface
-     *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
      */
     public function info()
     {
@@ -104,17 +96,12 @@ class DockerClient
     }
 
     /**
-     * Returns a list of containers
-     *
      * @param array $options
      *
-     * @return array|null
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
      * @throws BadParameterException
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
      */
     public function listContainers($options = [])
     {
@@ -138,7 +125,7 @@ class DockerClient
         $endpoint = urldecode($endpoint);
         try {
             return $this->request('GET', $endpoint);
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             $code = $e->getCode();
             if ($code === 400) {
                 throw new BadParameterException($e->getMessage(), $e->getCode());
@@ -153,10 +140,7 @@ class DockerClient
      *
      * @return bool
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
      * @throws ResourceNotFound
      */
     public function stopContainer($id)
@@ -166,7 +150,7 @@ class DockerClient
             if ($response->getStatusCode() === 204) {
                 return true;
             }
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             $code = $e->getCode();
             if ($code === 404) {
                 $text = sprintf('No such container: %s', $id);
@@ -182,21 +166,19 @@ class DockerClient
     /**
      * @param $id
      *
-     * @return mixed
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
+     * @throws ResourceNotFound
      */
     public function startContainer($id)
     {
         try {
             return $this->request('POST', sprintf('/containers/%s/start', $id));
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
-                throw new ResourceNotFound($text, $e->getCode(), $e);
+                throw new ResourceNotFound($text, $e->getCode());
             }
 
             throw $e;
@@ -207,12 +189,10 @@ class DockerClient
      * @param $name
      * @param $payload
      *
-     * @return string|false
+     * @return false|mixed
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
+     * @throws ResourceNotFound
      */
     public function runContainer($name, $payload)
     {
@@ -232,21 +212,19 @@ class DockerClient
     /**
      * @param $id
      *
-     * @return array
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
+     * @throws ResourceNotFound
      */
     public function inspectContainer($id)
     {
         try {
             return $this->request('GET', sprintf('/containers/%s/json', $id));
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
-                throw new ResourceNotFound($text, 404, $e);
+                throw new ResourceNotFound($text, 404);
             }
 
             throw $e;
@@ -255,23 +233,21 @@ class DockerClient
 
     /**
      * @param $id
-     * @param bool $oneShot
+     * @param false $oneShot
      *
-     * @return mixed|\Symfony\Contracts\HttpClient\ResponseInterface
+     * @return mixed|\Psr\Http\Message\ResponseInterface
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
+     * @throws ResourceNotFound
      */
     public function getContainerStats($id, $oneShot = false)
     {
         try {
             return $this->request('GET', sprintf('/containers/%s/stats?stream=false&one-shot=%s', $id, $oneShot));
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
-                throw new ResourceNotFound($text, 404, $e);
+                throw new ResourceNotFound($text, 404);
             }
 
             throw $e;
@@ -282,12 +258,10 @@ class DockerClient
      * @param $id
      * @param string $level
      *
-     * @return string
+     * @return string|string[]|null
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
+     * @throws ResourceNotFound
      */
     public function getContainerLogs($id, $level = 'all')
     {
@@ -312,10 +286,10 @@ class DockerClient
             $text = preg_replace('/(?!\n)[\p{Cc}]/', '', $text);
 
             return $text;
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
-                throw new ResourceNotFound($text, 404, $e);
+                throw new ResourceNotFound($text, 404);
             }
 
             throw $e;
@@ -323,14 +297,14 @@ class DockerClient
     }
 
     /**
-     * @param string $id
+     * @param $id
      *
      * @return bool
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws BadParameterException
+     * @throws GuzzleException
+     * @throws ResourceBusyException
+     * @throws ResourceNotFound
      */
     public function deleteContainer($id)
     {
@@ -338,16 +312,16 @@ class DockerClient
             $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
 
             return $response->getStatusCode() === 204;
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             $code = $e->getCode();
             if ($code === 400) {
-                throw new BadParameterException($e->getMessage(), 400, $e);
+                throw new BadParameterException($e->getMessage(), 400);
             } else if ($code === 404) {
                 $text = sprintf('No such container: %s', $id);
-                throw new ResourceNotFound($text, 404, $e);
+                throw new ResourceNotFound($text, 404);
             } else if ($code === 409) {
                 $text = sprintf('You cannot remove a running container: %s. Stop the container before attempting removal or force remove', $id);
-                throw new ResourceBusyException($text, 409, $e);
+                throw new ResourceBusyException($text, 409);
             }
 
             throw $e;
@@ -359,10 +333,7 @@ class DockerClient
      *
      * @return array
      *
-     * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
-     * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
+     * @throws GuzzleException
      */
     public function pruneContainers($label = null)
     {
@@ -381,6 +352,13 @@ class DockerClient
 
 //    DOCKER IMAGES
 
+    /**
+     * @param $name
+     *
+     * @return bool
+     *
+     * @throws GuzzleException
+     */
     public function imageExists($name)
     {
         try {
@@ -392,6 +370,13 @@ class DockerClient
         return false;
     }
 
+    /**
+     * @param null $label
+     *
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     *
+     * @throws GuzzleException
+     */
     public function listImages($label = null)
     {
         $endpoint = '/images/json';
@@ -406,14 +391,22 @@ class DockerClient
         return $this->request('GET', $endpoint);
     }
 
+    /**
+     * @param $nameOrId
+     *
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     *
+     * @throws GuzzleException
+     * @throws ResourceNotFound
+     */
     public function inspectImage($nameOrId)
     {
         try {
             return $this->request('GET', sprintf('/images/%s/json', $nameOrId));
-        } catch (ClientException $e) {
+        } catch (GuzzleException $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such image: %s', $nameOrId);
-                throw new ResourceNotFound($text, 404, $e);
+                throw new ResourceNotFound($text, 404);
             }
 
             throw $e;

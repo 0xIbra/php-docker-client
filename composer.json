@@ -2,6 +2,7 @@
     "name": "polkovnik/php-docker-client",
     "version": "1.41.8",
     "description": "Docker APIs driver for PHP.",
+    "homepage": "https://gtihub.com/ibragim64/php-docker-client",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -18,9 +19,6 @@
     "require": {
         "ext-curl": "*",
         "ext-json": "*",
-        "symfony/http-client": ">=3.0"
-    },
-    "require-dev": {
-        "symfony/var-dumper": ">=3.0"
+        "guzzlehttp/guzzle": "^6.5"
     }
 }
