@@ -19,6 +19,6 @@
     "require": {
         "ext-curl": "*",
         "ext-json": "*",
-        "guzzlehttp/guzzle": "^6.5"
+        "guzzlehttp/guzzle": ">=6.5.0"
     }
 }

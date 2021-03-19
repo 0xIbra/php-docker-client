@@ -55,7 +55,7 @@ class DockerClient
             return $this->info();
         } catch (\Exception $e) {
             $search = 'failed binding local connection end';
-            if (str_contains(strtolower($e->getMessage()), $search)) {
+            if (strpos(strtolower($e->getMessage()), $search) !== false) {
                 $text = sprintf('Could not bind to docker socket at %s', $this->unixSocket);
                 throw new DockerSocketNotFound($text);
             }
