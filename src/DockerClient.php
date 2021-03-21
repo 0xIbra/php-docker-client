@@ -18,7 +18,7 @@ class DockerClient
     private $options;
 
     /** @var string */
-    private $dockerApiEndpoint = 'http://localhost/v1.41';
+    private $dockerApiEndpoint = 'http://localhost';
 
     /** @var string  */
     private $unixSocket = '/var/run/docker.sock';
