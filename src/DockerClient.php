@@ -283,7 +283,7 @@ class DockerClient
             $response = $this->request('GET', $endpoint, [], false);
 
             $text = $response->getBody()->getContents();
-            $text = preg_replace('/(?!\n)[\p{Cc}]/', '', $text);
+            $text = urldecode($text);
 
             return $text;
         } catch (GuzzleException $e) {
