@@ -282,7 +282,7 @@ class DockerClient
         try {
             $response = $this->request('GET', $endpoint, [], false);
 
-            $text = $response->getContent();
+            $text = $response->getBody()->getContents();
             $text = preg_replace('/(?!\n)[\p{Cc}]/', '', $text);
 
             return $text;
