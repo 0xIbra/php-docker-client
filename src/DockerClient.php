@@ -283,7 +283,7 @@ class DockerClient
             $response = $this->request('GET', $endpoint, [], false);
 
             $text = $response->getBody()->getContents();
-            $text = urldecode($text);
+            $text = utf8_encode($text);
 
             return $text;
         } catch (GuzzleException $e) {
