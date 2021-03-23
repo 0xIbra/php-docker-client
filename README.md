@@ -4,7 +4,7 @@ PHP Docker client
 
 Installation
 ------------
-    composer require polkovnik/php-docker-client
+    composer require polkovnik-z/php-docker-client
 
 Usage
 -----
@@ -38,3 +38,8 @@ API Reference
 Tested Docker versions
 --------
 - #### [1.41](https://docs.docker.com/engine/api/v1.41/)
+
+
+License
+-------
+ - [Review](LICENSE)
