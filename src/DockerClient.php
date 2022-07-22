@@ -1,12 +1,12 @@
 <?php
 
-namespace Polkovnik\Component\DockerClient;
+namespace IterativeCode\Component\DockerClient;
 
 use GuzzleHttp\Exception\GuzzleException;
-use Polkovnik\Component\DockerClient\Exception\BadParameterException;
-use Polkovnik\Component\DockerClient\Exception\DockerSocketNotFound;
-use Polkovnik\Component\DockerClient\Exception\ResourceBusyException;
-use Polkovnik\Component\DockerClient\Exception\ResourceNotFound;
+use IterativeCode\Component\DockerClient\Exception\BadParameterException;
+use IterativeCode\Component\DockerClient\Exception\DockerSocketNotFound;
+use IterativeCode\Component\DockerClient\Exception\ResourceBusyException;
+use IterativeCode\Component\DockerClient\Exception\ResourceNotFound;
 use GuzzleHttp\Client as HttpClient;
 
 class DockerClient

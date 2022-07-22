@@ -1,4 +1,4 @@
-**Polkovnik \ Component \ DockerClient**
+**IterativeCode \ Component \ DockerClient**
 
 ## DockerClient
 

@@ -4,7 +4,7 @@ PHP Docker client
 
 Installation
 ------------
-    composer require polkovnik/php-docker-client
+    composer require ibra-akv/php-docker-client
 
 Usage
 -----
@@ -12,7 +12,7 @@ Usage
 Initialize client
 
 ```php
-use Polkovnik\Component\DockerClient\DockerClient;
+use IterativeCode\Component\DockerClient\DockerClient;
 
 $docker = new DockerClient([
     'docker_base_uri' => 'http://localhost/v1.41', # Optional (default: http://localhost/v1.41)

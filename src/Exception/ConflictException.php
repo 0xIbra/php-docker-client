@@ -1,6 +1,6 @@
 <?php
 
-namespace Polkovnik\Component\DockerClient\Exception;
+namespace IterativeCode\Component\DockerClient\Exception;
 
 class ConflictException extends \Exception
 {
