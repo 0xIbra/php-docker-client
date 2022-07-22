@@ -1,6 +1,6 @@
 {
     "name": "ibra-akv/php-docker-client",
-    "version": "1.41.12",
+    "version": "2.41.0",
     "description": "Docker APIs driver for PHP.",
     "homepage": "https://github.com/ibra-akv/php-docker-client",
     "type": "library",
