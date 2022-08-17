@@ -28,7 +28,7 @@ public __construct($options = [])
 $options : array
 ###### Tags
 **throws**
-- DockerSocketNotFound
+- DockerConnectionFailed
 
 
 #### listContainers()

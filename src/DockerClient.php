@@ -4,7 +4,7 @@ namespace IterativeCode\Component\DockerClient;
 
 use GuzzleHttp\Exception\GuzzleException;
 use IterativeCode\Component\DockerClient\Exception\BadParameterException;
-use IterativeCode\Component\DockerClient\Exception\DockerSocketNotFound;
+use IterativeCode\Component\DockerClient\Exception\DockerConnectionFailed;
 use IterativeCode\Component\DockerClient\Exception\ResourceBusyException;
 use IterativeCode\Component\DockerClient\Exception\ResourceNotFound;
 use GuzzleHttp\Client as HttpClient;
@@ -18,33 +18,26 @@ class DockerClient
     private $options;
 
     /** @var string */
-    private $dockerApiEndpoint = 'http://localhost';
-
-    /** @var string  */
-    private $unixSocket = '/var/run/docker.sock';
+    private $dockerApiEndpoint = 'http://localhost:2375';
 
     /**
      * DockerClient constructor.
      *
      * @param array $options
      *
-     * @throws DockerSocketNotFound
+     * @throws DockerConnectionFailed
      */
     public function __construct($options = [])
     {
         $this->options = $options;
 
-        if (!empty($options['docker_base_uri'])) {
-            $this->dockerApiEndpoint = $options['docker_base_uri'];
+        if (!empty($options['local_endpoint'])) {
+            $this->dockerApiEndpoint = $options['local_endpoint'];
         }
 
         $this->http = new HttpClient([
             'base_uri' => $this->dockerApiEndpoint,
         ]);
-
-        if (!empty($options['unix_socket'])) {
-            $this->unixSocket = $options['unix_socket'];
-        }
 
         $this->testConnection();
     }
@@ -54,13 +47,9 @@ class DockerClient
         try {
             return $this->info();
         } catch (\Exception $e) {
-            $search = 'failed binding local connection end';
-            if (strpos(strtolower($e->getMessage()), $search) !== false) {
-                $text = sprintf('Could not bind to docker socket at %s', $this->unixSocket);
-                throw new DockerSocketNotFound($text);
-            }
+            $text = sprintf('Docker API connection failed: %s', $this->dockerApiEndpoint);
 
-            throw $e;
+            throw new DockerConnectionFailed($text);
         }
     }
 
@@ -76,7 +65,6 @@ class DockerClient
      */
     private function request($method, $url, $options = [], $resolveResponse = true)
     {
-        $options = array_replace_recursive(['curl' => [CURLOPT_UNIX_SOCKET_PATH => $this->unixSocket]], $options);
         $response =  $this->http->request($method, $url, $options);
         if ($resolveResponse) {
             return json_decode($response->getBody()->getContents(), true);

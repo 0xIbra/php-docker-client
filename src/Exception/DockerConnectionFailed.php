@@ -2,7 +2,7 @@
 
 namespace IterativeCode\Component\DockerClient\Exception;
 
-class DockerSocketNotFound extends \Exception
+class DockerConnectionFailed extends \Exception
 {
 
 }
