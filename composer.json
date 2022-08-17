@@ -1,9 +1,8 @@
 {
     "name": "ibra-akv/php-docker-client",
-    "version": "1.41.12",
-    "description": "Docker APIs driver for PHP.",
-    "homepage": "https://github.com/ibra-akv/php-docker-client",
+    "description": "Docker API driver for PHP.",
     "type": "library",
+    "homepage": "https://github.com/ibra-akv/php-docker-client",
     "license": "MIT",
     "authors": [
         {
