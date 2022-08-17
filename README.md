@@ -76,3 +76,8 @@ API Reference
 Tested Docker versions
 --------
 - #### [1.41](https://docs.docker.com/engine/api/v1.41/)
+
+
+License
+-------
+ - [Review](LICENSE)
