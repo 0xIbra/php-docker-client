@@ -271,7 +271,7 @@ class DockerClient
         try {
             $response = $this->request('GET', $endpoint, [], false);
 
-            $text = $response->getBody()->getContents();
+            $text = $response->getContent();
             $text = utf8_encode($text);
 
             return $text;
