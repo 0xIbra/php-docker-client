@@ -32,6 +32,10 @@ jobs:
           key: 'dependencies-{{checksum "composer.json" }}'
 
       - run:
+          name: Wait for DinD
+          command: dockerize -wait tcp://localhost:2375 -timeout 1m
+
+      - run:
           name: Tests
           command: ./vendor/phpunit/phpunit/phpunit --verbose tests
 
