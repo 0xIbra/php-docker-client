@@ -1,0 +1,23 @@
+version: '3'
+services:
+  docker_in_docker:
+    container_name: docker_engine_api
+    image: docker:dind
+    privileged: true
+    network_mode: host
+    environment:
+      DOCKER_HOST: 127.0.0.1:2375
+#    ports:
+#      - "2375:2375"
+    entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:2375
+
+  php8.1:
+    container_name: php8.1
+    build:
+      dockerfile: .docker/php/8.1/Dockerfile
+      context: .
+    network_mode: host
+    tty: true
+    command: /bin/bash
+    volumes:
+      - ./:/opt/src/

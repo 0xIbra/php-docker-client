@@ -1,34 +1,37 @@
-version: 2.0
+version: 2
 jobs:
   php8.1:
     machine:
+      docker_layer_caching: true
       image: ubuntu-2004:current
-    runs-on:
-      docker:
-        - image: php:8.1
 
-        - image: docker:dind
-          entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:2375
-          privileged: True
-
+    working_directory: ~/project
     steps:
-      - run: |
-          sudo apt update -y
-          sudo apt install -y git unzip
-
-      - run: |
-          sudo php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
-          sudo php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
-          sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
-          sudo php -r "unlink('composer-setup.php');"
+#      - run:
+#          name: Install essential packages
+#          command: |
+#            sudo apt update -y
+#            sudo apt install -y git unzip
 
       - checkout
+
+      - run:
+          name: Build all docker images
+          command: docker-compose -f docker-compose.ci.yml build
+
+      - run:
+          name: Start Docker in Docker
+          command: docker-compose -f docker-compose.ci.yml run -d --name docker_engine_api docker_in_docker
 
       - restore_cache:
           keys:
             - 'dependencies-{{ checksum "composer.json" }}'
 
-      - run: composer install --prefer-dist
+      - run: docker-compose -f docker-compose.ci.yml run -d --name php8.1 php8.1
+
+      - run:
+          name: Composer install
+          command: docker exec php8.1 composer install --prefer-dist
 
       - save_cache:
           paths:
@@ -36,12 +39,12 @@ jobs:
           key: 'dependencies-{{checksum "composer.json" }}'
 
       - run:
-          name: Waiting for DinD (60s)
-          command: sleep 60
+          name: Waiting for DinD (30s)
+          command: sleep 30
 
       - run:
-          name: Tests
-          command: ./vendor/phpunit/phpunit/phpunit --verbose tests
+          name: Run tests
+          command: docker exec php8.1 ./vendor/phpunit/phpunit/phpunit --verbose tests
 
 workflows:
   version: 2
