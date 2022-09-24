@@ -7,12 +7,6 @@ jobs:
 
     working_directory: ~/project
     steps:
-#      - run:
-#          name: Install essential packages
-#          command: |
-#            sudo apt update -y
-#            sudo apt install -y git unzip
-
       - checkout
 
       - run:
@@ -23,12 +17,9 @@ jobs:
           name: Start Docker in Docker
           command: docker-compose -f docker-compose.ci.yml run -d --name docker_engine_api docker_in_docker
 
-      - run: mkdir -p ~/project/vendor/
-      - run: chmod -R 0777 ~/project/vendor/
-
-      - restore_cache:
-          keys:
-            - 'dependencies-{{ checksum "composer.json" }}'
+#      - restore_cache:
+#          keys:
+#            - 'dependencies-{{ checksum "composer.json" }}'
 
       - run: docker-compose -f docker-compose.ci.yml run -d --name php8.1 php8.1
 
@@ -36,10 +27,10 @@ jobs:
           name: Composer install
           command: docker exec php8.1 composer install --prefer-dist
 
-      - save_cache:
-          paths:
-            - vendor
-          key: 'dependencies-{{checksum "composer.json" }}'
+#      - save_cache:
+#          paths:
+#            - vendor
+#          key: 'dependencies-{{checksum "composer.json" }}'
 
       - run:
           name: Waiting for DinD (30s)
