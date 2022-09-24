@@ -23,6 +23,7 @@ jobs:
           name: Start Docker in Docker
           command: docker-compose -f docker-compose.ci.yml run -d --name docker_engine_api docker_in_docker
 
+      - run: mkdir -p ~/project/
       - run: chown -R $USER:$USER ~/project/
 
       - restore_cache:
