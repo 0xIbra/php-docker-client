@@ -6,7 +6,6 @@ jobs:
 
       - image: docker:dind
         entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:2375
-        ports
 
     steps:
       - checkout
