@@ -32,8 +32,8 @@ jobs:
           key: 'dependencies-{{checksum "composer.json" }}'
 
       - run:
-          name: Wait for DinD
-          command: dockerize -wait tcp://localhost:2375 -timeout 1m
+          name: Waiting for DinD (60s)
+          command: sleep 60
 
       - run:
           name: Tests
