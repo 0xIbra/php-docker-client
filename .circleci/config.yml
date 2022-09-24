@@ -8,40 +8,51 @@ jobs:
     working_directory: ~/project
     steps:
       - checkout
-
       - run:
           name: Build all docker images
-          command: docker-compose -f docker-compose.ci.yml build
-
+          command: docker-compose -f docker-compose.php81.ci.yml build
       - run:
           name: Start Docker in Docker
-          command: docker-compose -f docker-compose.ci.yml run -d --name docker_engine_api docker_in_docker
-
-#      - restore_cache:
-#          keys:
-#            - 'dependencies-{{ checksum "composer.json" }}'
-
-      - run: docker-compose -f docker-compose.ci.yml run -d --name php8.1 php8.1
-
+          command: docker-compose -f docker-compose.php81.ci.yml run -d --name docker_engine_api docker_in_docker
+      - run: docker-compose -f docker-compose.php81.ci.yml run -d --name php8.1 php8.1
       - run:
           name: Composer install
           command: docker exec php8.1 composer install --prefer-dist
-
-#      - save_cache:
-#          paths:
-#            - vendor
-#          key: 'dependencies-{{checksum "composer.json" }}'
-
       - run:
           name: Waiting for DinD (30s)
           command: sleep 30
-
       - run:
           name: Run tests
           command: docker exec php8.1 ./vendor/phpunit/phpunit/phpunit --verbose tests
+
+  php7.4:
+    machine:
+      docker_layer_caching: true
+      image: ubuntu-2004:current
+
+    working_directory: ~/project
+    steps:
+      - checkout
+      - run:
+          name: Build all docker images
+          command: docker-compose -f docker-compose.php74.ci.yml build
+      - run:
+          name: Start Docker in Docker
+          command: docker-compose -f docker-compose.php74.ci.yml run -d --name docker_engine_api docker_in_docker
+      - run: docker-compose -f docker-compose.php74.ci.yml run -d --name php7.4 php7.4
+      - run:
+          name: Composer install
+          command: docker exec php7.4 composer install --prefer-dist
+      - run:
+          name: Waiting for DinD (30s)
+          command: sleep 30
+      - run:
+          name: Run tests
+          command: docker exec php7.4 ./vendor/phpunit/phpunit/phpunit --verbose tests
 
 workflows:
   version: 2
   test-docker-client:
     jobs:
       - php8.1
+      - php7.4
