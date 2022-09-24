@@ -12,7 +12,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "IterativeCode\\Component\\DockerClient\\": "src/"
+            "IterativeCode\\Component\\DockerClient\\": "src/",
+            "IterativeCode\\Component\\DockerClient\\Tests\\": "tests/"
         }
     },
     "require": {
@@ -20,5 +21,8 @@
         "ext-curl": "*",
         "ext-json": "*",
         "symfony/http-client": ">=4.3.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
     }
 }

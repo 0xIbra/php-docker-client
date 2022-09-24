@@ -85,6 +85,16 @@ class DockerClient
     }
 
     /**
+     * @return ResponseInterface
+     *
+     * @throws ExceptionInterface
+     */
+    public function version()
+    {
+        return $this->request('GET', '/version');
+    }
+
+    /**
      * @param array $options
      *
      * @return ResponseInterface
@@ -400,5 +410,14 @@ class DockerClient
 
             throw $e;
         }
+    }
+
+    public function pullImage($image)
+    {
+        $endpoint = '/images/create';
+        $opts = ['fromImage' => $image];
+        $endpoint = $endpoint . '?' . http_build_query($opts);
+
+        $this->request('POST', $endpoint);
     }
 }

@@ -1,0 +1,33 @@
+version: 2
+jobs:
+  php8.1:
+    docker:
+      - image: php:8.1
+
+      - image: docker:dind
+        entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:2375
+        ports
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+            - 'dependencies-{{ checksum "composer.json" }}'
+
+      - run: composer install --prefer-dist
+
+      - save_cache:
+          paths:
+            - vendor
+          key: 'dependencies-{{checksum "composer.json" }}'
+
+      - run:
+          name: Tests
+          command: ./vendor/phpunit/phpunit/phpunit --verbose tests
+
+workflows:
+  version: 2
+  test-docker-client:
+    jobs:
+      - php8.1
