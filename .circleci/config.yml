@@ -23,7 +23,8 @@ jobs:
           name: Start Docker in Docker
           command: docker-compose -f docker-compose.ci.yml run -d --name docker_engine_api docker_in_docker
 
-      - run: chown -R circleci:$USER ~/project/
+      - run: mkdir -p ~/project/vendor/
+      - run: chmod -R 0777 circleci:$USER ~/project/vendor/
 
       - restore_cache:
           keys:
