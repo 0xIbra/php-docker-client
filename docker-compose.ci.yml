@@ -9,7 +9,7 @@ services:
       DOCKER_HOST: 127.0.0.1:2375
 #    ports:
 #      - "2375:2375"
-    entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:2375
+    entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:6666
 
   php8.1:
     container_name: php8.1

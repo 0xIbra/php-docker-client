@@ -12,6 +12,6 @@ class MainTestCase extends TestCase
 
     public function setUp(): void
     {
-        $this->docker = new DockerClient(['local_endpoint' => 'http://127.0.0.1:2375']);
+        $this->docker = new DockerClient(['local_endpoint' => 'http://127.0.0.1:6666']);
     }
 }

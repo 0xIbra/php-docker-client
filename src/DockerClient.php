@@ -60,7 +60,7 @@ class DockerClient
      * @param array $options
      * @param bool $resolveResponse
      *
-     * @return ResponseInterface
+     * @return array|ResponseInterface
      *
      * @throws ExceptionInterface
      */
@@ -364,7 +364,11 @@ class DockerClient
             $response = $this->inspectImage($name);
 
             return !empty($response);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
 
         return false;
     }
@@ -393,7 +397,7 @@ class DockerClient
     /**
      * @param $nameOrId
      *
-     * @return ResponseInterface
+     * @return array|ResponseInterface
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -401,6 +405,7 @@ class DockerClient
     public function inspectImage($nameOrId)
     {
         try {
+            $nameOrId = urlencode($nameOrId);
             return $this->request('GET', sprintf('/images/%s/json', $nameOrId));
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
@@ -412,6 +417,13 @@ class DockerClient
         }
     }
 
+    /**
+     * @param $image
+     *
+     * @return void
+     *
+     * @throws ExceptionInterface
+     */
     public function pullImage($image)
     {
         $endpoint = '/images/create';
@@ -419,5 +431,24 @@ class DockerClient
         $endpoint = $endpoint . '?' . http_build_query($opts);
 
         $this->request('POST', $endpoint);
+    }
+
+    /**
+     * @param $image
+     * @param $force
+     *
+     * @return void
+     *
+     * @throws ExceptionInterface
+     */
+    public function removeImage($image, $force = false)
+    {
+        $endpoint = sprintf('/images/%s', $image);
+
+        if ($force === true) {
+            $endpoint .= '?' . http_build_query(['force' => 'true']);
+        }
+
+        $this->request('DELETE', $endpoint);
     }
 }
