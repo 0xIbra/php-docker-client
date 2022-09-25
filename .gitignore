@@ -1,5 +1,7 @@
 .idea/
 vendor/
+html/
 
 composer.lock
 test.php
+*.cache
