@@ -4,9 +4,9 @@ FROM php:8.1
 RUN apt update -y
 RUN apt install -y git unzip
 
-# install pcov ext
-RUN pecl install pcov
-RUN docker-php-ext-enable pcov
+# install php extensions
+RUN pecl install pcov xdebug
+RUN docker-php-ext-enable pcov xdebug
 
 # install composer
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
