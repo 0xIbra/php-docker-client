@@ -12,7 +12,9 @@ class ImagesTest extends MainTestCase
     {
         parent::tearDown();
 
-        $this->docker->removeImage($this->pullImage, true);
+        if ($this->docker->imageExists($this->pullImage)) {
+            $this->docker->removeImage($this->pullImage, true);
+        }
     }
 
     protected function reset()
