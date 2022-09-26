@@ -99,7 +99,7 @@ class ContainersTest extends MainTestCase
         $this->assertTrue($result);
     }
 
-    public function testFailToRemoveRunningContainer()
+    public function testFailToDeleteRunningContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [
             'Image' => $this->image,

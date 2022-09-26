@@ -5,6 +5,7 @@
             <file>tests/DockerClientTest.php</file>
             <file>tests/Images/ImagesTest.php</file>
             <file>tests/Containers/ContainersTest.php</file>
+            <file>tests/Containers/AdvancedContainersTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>
