@@ -308,9 +308,9 @@ class DockerClient
     public function deleteContainer($id)
     {
         try {
-            $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
+            $this->request('DELETE', sprintf('/containers/%s', $id), []);
 
-            return $response->getStatusCode() === 204;
+            return true;
         } catch (\Exception $e) {
             $code = $e->getCode();
             if ($code === 400) {
