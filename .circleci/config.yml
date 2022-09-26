@@ -58,9 +58,6 @@ jobs:
       - store_artifacts:
           name: Save code coverage report
           path: build/coverage-report
-      - run:
-          name: Push report to Coveralls
-          command: docker exec php7.4 ./vendor/bin/php-coveralls -v
 
 workflows:
   version: 2
