@@ -1,7 +1,7 @@
 PHP Docker client
 ==================
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/ibra-akv/php-docker-client/tree/ci.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/ibra-akv/php-docker-client/tree/ci)
-[![Coverage Status](https://coveralls.io/repos/ibra-akv/php-docker-client/badge.svg?branch=ci&service=github)](https://coveralls.io/github/ibra-akv/php-docker-client?branch=ci)
+[![Coverage Status](https://coveralls.io/repos/github/ibra-akv/php-docker-client/badge.svg?branch=ci)](https://coveralls.io/github/ibra-akv/php-docker-client?branch=ci)
 
 > Docker API driver for PHP.
 
