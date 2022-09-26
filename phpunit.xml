@@ -2,7 +2,9 @@
 <phpunit bootstrap="./vendor/autoload.php" colors="true">
     <testsuites>
         <testsuite name="Test Suite">
-            <directory>./tests</directory>
+            <file>tests/DockerClientTest.php</file>
+            <file>tests/Images/ImagesTest.php</file>
+            <file>tests/Containers/ContainersTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>
