@@ -24,6 +24,9 @@ jobs:
       - run:
           name: Run tests
           command: docker exec php8.1 ./vendor/phpunit/phpunit/phpunit --verbose tests
+      - store_artifacts:
+          name: Save code coverage report
+          path: build/coverage-report
 
   php7.4:
     machine:
