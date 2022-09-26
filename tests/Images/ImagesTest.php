@@ -8,6 +8,13 @@ class ImagesTest extends MainTestCase
 {
     private $pullImage = 'node:16';
 
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        $this->docker->removeImage($this->pullImage, true);
+    }
+
     protected function reset()
     {
         if ($this->docker->imageExists($this->pullImage)) {
