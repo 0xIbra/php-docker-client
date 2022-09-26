@@ -1,6 +1,7 @@
 .idea/
 vendor/
 html/
+build/
 
 composer.lock
 test.php
