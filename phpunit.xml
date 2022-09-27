@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="./vendor/autoload.php" colors="true">
+    <testsuites>
+        <testsuite name="Test Suite">
+            <file>tests/DockerClientTest.php</file>
+            <file>tests/Images/ImagesTest.php</file>
+            <file>tests/Containers/ContainersTest.php</file>
+            <file>tests/Containers/AdvancedContainersTest.php</file>
+        </testsuite>
+    </testsuites>
+    <coverage>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <html outputDirectory="build/coverage-report" />
+            <text outputFile="build/coverage.txt" />
+        </report>
+    </coverage>
+</phpunit>

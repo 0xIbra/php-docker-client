@@ -60,7 +60,7 @@ class DockerClient
      * @param array $options
      * @param bool $resolveResponse
      *
-     * @return ResponseInterface
+     * @return array|ResponseInterface
      *
      * @throws ExceptionInterface
      */
@@ -85,9 +85,19 @@ class DockerClient
     }
 
     /**
+     * @return ResponseInterface
+     *
+     * @throws ExceptionInterface
+     */
+    public function version()
+    {
+        return $this->request('GET', '/version');
+    }
+
+    /**
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws BadParameterException
      * @throws ExceptionInterface
@@ -104,7 +114,7 @@ class DockerClient
         }
 
         if (!empty($options['filters'])) {
-            $filters['filters'] = $options['filters'];
+            $filters['filters'] = json_encode($options['filters']);
         }
 
         if (!empty($filters)) {
@@ -135,10 +145,9 @@ class DockerClient
     public function stopContainer($id)
     {
         try {
-            $response = $this->request('POST', sprintf('/containers/%s/stop', $id), [], false);
-            if ($response->getStatusCode() === 204) {
-                return true;
-            }
+            $this->request('POST', sprintf('/containers/%s/stop', $id), []);
+
+            return true;
         } catch (\Exception $e) {
             $code = $e->getCode();
             if ($code === 404) {
@@ -210,7 +219,7 @@ class DockerClient
     {
         try {
             return $this->request('GET', sprintf('/containers/%s/json', $id));
-        } catch (GuzzleException $e) {
+        } catch (\Exception $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
                 throw new ResourceNotFound($text, 404);
@@ -287,6 +296,7 @@ class DockerClient
 
     /**
      * @param $id
+     * @param bool $force
      *
      * @return bool
      *
@@ -295,12 +305,17 @@ class DockerClient
      * @throws ResourceBusyException
      * @throws ResourceNotFound
      */
-    public function deleteContainer($id)
+    public function deleteContainer($id, $force = false)
     {
-        try {
-            $response = $this->request('DELETE', sprintf('/containers/%s', $id), [], false);
+        $endpoint = sprintf('/containers/%s', $id);
+        if ($force === true) {
+            $endpoint .= '?' . http_build_query(['force' => 'true']);
+        }
 
-            return $response->getStatusCode() === 204;
+        try {
+            $this->request('DELETE', $endpoint, []);
+
+            return true;
         } catch (\Exception $e) {
             $code = $e->getCode();
             if ($code === 400) {
@@ -354,7 +369,11 @@ class DockerClient
             $response = $this->inspectImage($name);
 
             return !empty($response);
-        } catch (\Exception $e) {}
+        } catch (\Exception $e) {
+            if ($e->getCode() !== 404) {
+                throw $e;
+            }
+        }
 
         return false;
     }
@@ -383,7 +402,7 @@ class DockerClient
     /**
      * @param $nameOrId
      *
-     * @return ResponseInterface
+     * @return array|ResponseInterface
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -391,6 +410,7 @@ class DockerClient
     public function inspectImage($nameOrId)
     {
         try {
+            $nameOrId = urlencode($nameOrId);
             return $this->request('GET', sprintf('/images/%s/json', $nameOrId));
         } catch (\Exception $e) {
             if ($e->getCode() === 404) {
@@ -400,5 +420,40 @@ class DockerClient
 
             throw $e;
         }
+    }
+
+    /**
+     * @param $image
+     *
+     * @return void
+     *
+     * @throws ExceptionInterface
+     */
+    public function pullImage($image)
+    {
+        $endpoint = '/images/create';
+        $opts = ['fromImage' => $image];
+        $endpoint = $endpoint . '?' . http_build_query($opts);
+
+        $this->request('POST', $endpoint);
+    }
+
+    /**
+     * @param $image
+     * @param $force
+     *
+     * @return void
+     *
+     * @throws ExceptionInterface
+     */
+    public function removeImage($image, $force = false)
+    {
+        $endpoint = sprintf('/images/%s', $image);
+
+        if ($force === true) {
+            $endpoint .= '?' . http_build_query(['force' => 'true']);
+        }
+
+        $this->request('DELETE', $endpoint);
     }
 }

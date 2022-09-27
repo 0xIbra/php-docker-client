@@ -1,0 +1,21 @@
+version: '3'
+services:
+  docker_in_docker:
+    container_name: docker_engine_api
+    image: docker:dind
+    privileged: true
+    network_mode: host
+    entrypoint: docker-init -- dockerd --host=tcp://0.0.0.0:6666
+
+  php7.4:
+    container_name: php7.4
+    build:
+      dockerfile: .docker/php/7.4/Dockerfile
+      context: .
+    network_mode: host
+    tty: true
+    command: /bin/bash
+    environment:
+      COVERALLS_REPO_TOKEN: ${COVERALLS_REPO_TOKEN}
+    volumes:
+      - ./:/opt/src/
