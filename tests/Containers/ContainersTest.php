@@ -159,6 +159,12 @@ class ContainersTest extends MainTestCase
         $this->assertTrue($result);
     }
 
+    public function testFailDeleteContainer()
+    {
+        $this->expectException(ResourceNotFound::class);
+        $this->docker->deleteContainer('fakeid', true);
+    }
+
     public function testFailToDeleteRunningContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [

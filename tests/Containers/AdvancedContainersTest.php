@@ -50,8 +50,15 @@ class AdvancedContainersTest extends MainTestCase
 
         $logs = $this->docker->getContainerLogs($containerId);
         $this->assertIsString($logs);
+
+        $outLogs = $this->docker->getContainerLogs($containerId, 'out');
+        $this->assertIsString($outLogs);
         $this->assertStringContainsString($envName, $logs);
         $this->assertStringContainsString($envValue, $logs);
+
+        $errorLogs = $this->docker->getContainerLogs($containerId, 'error');
+        $this->assertIsString($errorLogs);
+        $this->assertEquals('', $errorLogs);
 
         $this->docker->deleteContainer($containerId, true);
     }
@@ -60,5 +67,41 @@ class AdvancedContainersTest extends MainTestCase
     {
         $this->expectException(ResourceNotFound::class);
         $this->docker->getContainerLogs('fakeid');
+    }
+
+    public function testPruneContainers()
+    {
+        $containerIds = [];
+        for ($i = 0; $i < 10; $i++) {
+            $name = sprintf('testContainer%s', ($i+1));
+            $options = [
+                'Image' => $this->image,
+                'Cmd' => ['printenv'],
+            ];
+
+            $containerId = $this->docker->runContainer($name, $options);
+            $containerIds[] = $containerId;
+        }
+
+        $this->assertCount(10, $containerIds);
+        $containersCount = $this->docker->listContainers(['all' => true]);
+        $containersCount = count($containersCount);
+        $this->assertEquals(10, $containersCount);
+
+        $result = $this->docker->pruneContainers();
+        $this->assertIsArray($result);
+        $this->assertArrayHasKey('ContainersDeleted', $result);
+        $this->assertEquals(10, count($result['ContainersDeleted']));
+
+        $containers = $this->docker->listContainers(['all' => true]);
+        $this->assertIsArray($containers);
+        $this->assertEmpty($containers);
+    }
+
+    public function testFailPruneContainers()
+    {
+        $result = $this->docker->pruneContainers('IS_DOCKER_JOB');
+        $this->assertIsArray($result);
+        $this->assertEquals(null, $result['ContainersDeleted']);
     }
 }

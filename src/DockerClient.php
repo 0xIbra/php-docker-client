@@ -97,7 +97,7 @@ class DockerClient
     /**
      * @param array $options
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws BadParameterException
      * @throws ExceptionInterface
