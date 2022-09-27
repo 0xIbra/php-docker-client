@@ -25,8 +25,7 @@ class AdvancedContainersTest extends MainTestCase
         $this->assertArrayHasKey('cpu_usage', $stats['cpu_stats']);
         $this->assertEquals('/test-container', $stats['name']);
 
-        $this->docker->stopContainer($containerId);
-        $this->docker->deleteContainer($containerId);
+        $this->docker->deleteContainer($containerId, true);
     }
 
     public function testFailContainerStats()
@@ -53,6 +52,8 @@ class AdvancedContainersTest extends MainTestCase
         $this->assertIsString($logs);
         $this->assertStringContainsString($envName, $logs);
         $this->assertStringContainsString($envValue, $logs);
+
+        $this->docker->deleteContainer($containerId, true);
     }
 
     public function testFailContainerLogs()

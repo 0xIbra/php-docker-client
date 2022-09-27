@@ -8,12 +8,26 @@ use IterativeCode\Component\DockerClient\Tests\MainTestCase;
 class ContainersTest extends MainTestCase
 {
     private $image = 'alpine:3.16.2';
+    private $containerIds = [];
 
     public function setUp(): void
     {
         parent::setUp();
 
         $this->docker->pullImage($this->image);
+    }
+
+    protected function tearDown(): void
+    {
+        parent::tearDown();
+
+        if (count($this->containerIds) > 0) {
+            foreach ($this->containerIds as $containerId) {
+                $this->docker->deleteContainer($containerId, true);
+            }
+
+            $this->containerIds = [];
+        }
     }
 
     public function testListEmptyContainers()
@@ -83,8 +97,7 @@ class ContainersTest extends MainTestCase
         $this->docker->deleteContainer($containerId);
     }
 
-
-    public function testRemoveContainer()
+    public function testDeleteContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [
             'Image' => $this->image,
@@ -109,10 +122,23 @@ class ContainersTest extends MainTestCase
 
         $this->assertIsString($containerId);
 
+        $this->containerIds[] = $containerId;
         $this->expectException(ResourceBusyException::class);
         $this->docker->deleteContainer($containerId);
+    }
 
-        $this->docker->stopContainer($containerId);
-        $this->docker->deleteContainer($containerId);
+    public function testForceDeleteRunningContainer()
+    {
+        $containerId = $this->docker->runContainer('test-container', [
+            'Image' => $this->image,
+            'Cmd' => ['sleep', '300'],
+        ]);
+        sleep(1);
+
+        $this->assertIsString($containerId);
+
+        $result = $this->docker->deleteContainer($containerId, true);
+        $this->assertIsBool($result);
+        $this->assertTrue($result);
     }
 }
