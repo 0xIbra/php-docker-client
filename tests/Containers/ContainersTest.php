@@ -79,6 +79,12 @@ class ContainersTest extends MainTestCase
         $this->docker->startContainer('fakeid');
     }
 
+    public function testStartContainerError()
+    {
+        $this->expectException(\Exception::class);
+        $this->docker->startContainer('\n');
+    }
+
     public function testInspectContainer()
     {
         $hookEnv = 'HOOK_ME=php-docker-client';
@@ -144,6 +150,12 @@ class ContainersTest extends MainTestCase
         $this->docker->stopContainer('fakeid');
     }
 
+    public function testStopContainerError()
+    {
+        $this->expectException(\Exception::class);
+        $this->docker->stopContainer('\n');
+    }
+
     public function testDeleteContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [
@@ -163,6 +175,18 @@ class ContainersTest extends MainTestCase
     {
         $this->expectException(ResourceNotFound::class);
         $this->docker->deleteContainer('fakeid', true);
+    }
+
+    public function testExceptionDeleteContainer()
+    {
+        $this->expectException(BadParameterException::class);
+        $this->docker->deleteContainer(null);
+    }
+
+    public function testDeleteContainerError()
+    {
+        $this->expectException(\Exception::class);
+        $this->docker->deleteContainer('\n');
     }
 
     public function testFailToDeleteRunningContainer()

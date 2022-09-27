@@ -19,7 +19,10 @@ class ImagesTest extends MainTestCase
 
     public function testEmptyImagesList()
     {
-        $images = $this->docker->listImages();
+        $this->assertEmpty($this->docker->listImages());
+
+        $images = $this->docker->listImages('SYMFONY_IMAGE');
+        $this->assertIsArray($images);
         $this->assertEmpty($images);
     }
 
@@ -41,6 +44,12 @@ class ImagesTest extends MainTestCase
         $this->assertTrue($this->docker->imageExists($this->pullImage));
     }
 
+    public function testImageExistsError()
+    {
+        $this->expectException(\Exception::class);
+        $this->docker->imageExists('\n');
+    }
+
     public function testInspectImage()
     {
         $this->docker->pullImage($this->pullImage);
@@ -48,6 +57,12 @@ class ImagesTest extends MainTestCase
         $this->assertIsArray($imageDetails);
         $this->assertArrayHasKey('Id', $imageDetails);
         $this->assertArrayHasKey('RepoTags', $imageDetails);
+    }
+
+    public function testInspectImageError()
+    {
+        $this->expectException(\Exception::class);
+        $this->docker->inspectImage('\n');
     }
 
     public function testDeletingImage()
