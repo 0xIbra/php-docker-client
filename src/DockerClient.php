@@ -297,6 +297,7 @@ class DockerClient
 
     /**
      * @param $id
+     * @param bool $force
      *
      * @return bool
      *
@@ -305,10 +306,15 @@ class DockerClient
      * @throws ResourceBusyException
      * @throws ResourceNotFound
      */
-    public function deleteContainer($id)
+    public function deleteContainer($id, $force = false)
     {
+        $endpoint = sprintf('/containers/%s', $id);
+        if ($force === true) {
+            $endpoint .= '?' . http_build_query(['force' => 'true']);
+        }
+
         try {
-            $this->request('DELETE', sprintf('/containers/%s', $id), []);
+            $this->request('DELETE', $endpoint, []);
 
             return true;
         } catch (\Exception $e) {
