@@ -75,7 +75,7 @@ class DockerClient
     }
 
     /**
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      */
@@ -85,7 +85,7 @@ class DockerClient
     }
 
     /**
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      */
@@ -164,7 +164,7 @@ class DockerClient
     /**
      * @param $id
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -187,7 +187,7 @@ class DockerClient
      * @param $name
      * @param $payload
      *
-     * @return false|mixed
+     * @return false|string
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -210,7 +210,7 @@ class DockerClient
     /**
      * @param $id
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -233,7 +233,7 @@ class DockerClient
      * @param $id
      * @param false $oneShot
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -256,7 +256,7 @@ class DockerClient
      * @param $id
      * @param string $level
      *
-     * @return string|string[]|null
+     * @return string
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound
@@ -335,7 +335,7 @@ class DockerClient
     /**
      * Deletes stopped containers
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      */
@@ -361,7 +361,7 @@ class DockerClient
      *
      * @return bool
      *
-     * @throws ExceptionInterface
+     * @throws ExceptionInterface|ResourceNotFound
      */
     public function imageExists($name)
     {
@@ -381,7 +381,7 @@ class DockerClient
     /**
      * @param null $label
      *
-     * @return ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      */
@@ -402,7 +402,7 @@ class DockerClient
     /**
      * @param $nameOrId
      *
-     * @return array|ResponseInterface
+     * @return array
      *
      * @throws ExceptionInterface
      * @throws ResourceNotFound

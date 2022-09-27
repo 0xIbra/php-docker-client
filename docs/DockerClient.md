@@ -1,181 +1,233 @@
-**IterativeCode \ Component \ DockerClient**
+# DockerClient
 
-## DockerClient
+* Full name: `\IterativeCode\Component\DockerClient\DockerClient`
 
-#### Table of Contents
-- [__construct()](#__construct)
-- [listContainers()](#listcontainers) : array
-- [stopContainer($id)](#stopcontainer) : bool
-- [startContainer($id)](#startcontainer)
-- [runContainer($name, $payload)](#runcontainer) : string | false
-- [deleteContainer($id)](#deletecontainer): boolean
-- [inspectContainer($id)](#inspectcontainer)
-- [getContainerStats($id)](#getcontainerstats)
-- [getContainerLogs($id)](#getcontainerlogs): string
-- [pruneContainers($label = null)](#prunecontainers) : array
-- [listImages()](#listimages) : array
-- [inspectImage($id)](#inspectimage) : array
-- [imageExists($id)](#imageexists) : bool
+***
 
-#### Methods
+## Methods
 
-#### __construct()
+
+### __construct
+
 DockerClient constructor.
-```
-public __construct($options = [])
-```
-###### Parameters
-$options : array
-###### Tags
-**throws**
-- DockerConnectionFailed
 
-
-#### listContainers()
-Returns a list of containers.
-```
-public listContainers() : array
+```php
+public __construct(array $options = []): mixed
 ```
 
-###### Return values
-array -
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$options` | **array** |  |
 
 
-#### stopContainer()
-Stops a running container.
-```
-public stopContainer($id) : bool
-```
+***
 
-###### Parameters
-$id: string
+### info
 
-###### Return values
-bool -
-
-
-#### startContainer()
-Starts a newly created container.
-```
-public startContainer($id) : bool
+```php
+public info(): array
 ```
 
-###### Parameters
-$id: string
+***
 
-###### Return values
-bool -
+### version
 
-
-#### runContainer()
-Creates and starts a new container.
-```
-public runContainer($name, $config) : string|false
+```php
+public version(): array
 ```
 
-###### Parameters
-$name: string
-$config: array - refer to official [Docker API documentation](https://docs.docker.com/engine/api/v1.41/#operation/ContainerCreate) for more information
+***
 
-###### Return values
-string -
-bool -
+### listContainers
 
-#### deleteContainer()
-Removes a stopped container.
+```php
+public listContainers(array $options = []): array
 ```
-public deleteContainer() : bool
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$options` | **array** |  |
+
+***
+
+### stopContainer
+
+```php
+public stopContainer( $id): bool
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+
+***
+
+### startContainer
+
+```php
+public startContainer( $id): array
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+
+***
+
+### runContainer
+
+```php
+public runContainer( $name,  $payload): false|string
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **** |  |
+| `$payload` | **** |  |
+
+***
+
+### inspectContainer
+
+```php
+public inspectContainer( $id): array
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+
+***
+
+### getContainerStats
+
+```php
+public getContainerStats( $id, false $oneShot = false): array
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+| `$oneShot` | **false** |  |
+
+***
+
+### getContainerLogs
+
+```php
+public getContainerLogs( $id, string $level = &#039;all&#039;): string
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+| `$level` | **string** |  |
+
+***
+
+### deleteContainer
+
+```php
+public deleteContainer( $id, bool $force = false): bool
+```
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$id` | **** |  |
+| `$force` | **bool** |  |
+
+***
+
+### pruneContainers
+
+Deletes stopped containers
+
+```php
+public pruneContainers(mixed $label = null): array
 ```
 
-###### Parameters
-$id: string
+**Parameters:**
 
-###### Return values
-bool -
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$label` | **mixed** |  |
 
+***
 
-#### inspectContainer()
-Retrieves all container relatated information.
+### imageExists
+
+```php
+public imageExists( $name): bool
 ```
-public inspectContainer($id) : array
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$name` | **** |  |
+
+***
+
+### listImages
+
+```php
+public listImages(null $label = null): array
 ```
+**Parameters:**
 
-###### Parameters
-$id: string
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$label` | **null** |  |
 
-###### Return values
-array -
+***
 
+### inspectImage
 
-
-#### getContainerStats()
-Retrive container usage statistics.
+```php
+public inspectImage( $nameOrId): array
 ```
-public getContainerStats($id) : array
+**Parameters:**
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$nameOrId` | **** |  |
+
+***
+
+### pullImage
+
+```php
+public pullImage( $image): void
 ```
+**Parameters:**
 
-###### Parameters
-$id: string
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$image` | **** |  |
 
-###### Return values
-array -
+***
 
+### removeImage
 
-#### getContainerLogs()
-Retrieves logs from container.
+```php
+public removeImage( $image,  $force = false): void
 ```
-public getContainerLogs($id) : string
-```
-###### Parameters
-$id: string
+**Parameters:**
 
-###### Return values
-string -
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `$image` | **** |  |
+| `$force` | **** |  |
 
+***
 
-#### pruneContainers()
-Deletes all stopped containers.
-```
-public pruneContainers() : array
-```
-
-###### Return values
-array -
-
-
-
-#### listImages()
-Returns a list of containers.
-```
-public listImages() : array
-```
-
-###### Return values
-array -
-
-
-
-#### inspectImage()
-Retrieves all container relatated information.
-```
-public inspectImage($id) : array
-```
-
-###### Parameters
-$id: string
-
-###### Return values
-array -
-
-
-#### imageExists()
-Retrieves all container relatated information.
-```
-public imageExists($id) : bool
-```
-
-###### Parameters
-$id: string
-
-###### Return values
-bool - 
+> Automatically generated from source code comments on 2022-09-27 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
