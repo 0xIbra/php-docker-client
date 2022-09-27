@@ -114,7 +114,7 @@ class DockerClient
         }
 
         if (!empty($options['filters'])) {
-            $filters['filters'] = $options['filters'];
+            $filters['filters'] = json_encode($options['filters']);
         }
 
         if (!empty($filters)) {
@@ -145,10 +145,9 @@ class DockerClient
     public function stopContainer($id)
     {
         try {
-            $response = $this->request('POST', sprintf('/containers/%s/stop', $id), [], false);
-            if ($response->getStatusCode() === 204) {
-                return true;
-            }
+            $this->request('POST', sprintf('/containers/%s/stop', $id), []);
+
+            return true;
         } catch (\Exception $e) {
             $code = $e->getCode();
             if ($code === 404) {
@@ -220,7 +219,7 @@ class DockerClient
     {
         try {
             return $this->request('GET', sprintf('/containers/%s/json', $id));
-        } catch (GuzzleException $e) {
+        } catch (\Exception $e) {
             if ($e->getCode() === 404) {
                 $text = sprintf('No such container: %s', $id);
                 throw new ResourceNotFound($text, 404);

@@ -2,7 +2,10 @@
 
 namespace IterativeCode\Component\DockerClient\Tests\Containers;
 
+use IterativeCode\Component\DockerClient\DockerClient;
+use IterativeCode\Component\DockerClient\Exception\BadParameterException;
 use IterativeCode\Component\DockerClient\Exception\ResourceBusyException;
+use IterativeCode\Component\DockerClient\Exception\ResourceNotFound;
 use IterativeCode\Component\DockerClient\Tests\MainTestCase;
 
 class ContainersTest extends MainTestCase
@@ -37,6 +40,25 @@ class ContainersTest extends MainTestCase
         $this->assertEmpty($containers);
     }
 
+    public function testFailListContainers()
+    {
+        $this->expectException(BadParameterException::class);
+        $options = [
+            'all' => true,
+            'limit' => 32,
+            'filters' => ['status' => ['badstatus']],
+        ];
+        $this->docker->listContainers($options);
+    }
+
+    public function testExceptionListContainers()
+    {
+        $this->expectException(\Exception::class);
+
+        $docker = new DockerClient(['local_endpoint' => 'http://127.0.0.1:1234']);
+        $docker->listContainers();
+    }
+
     public function testRunContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [
@@ -49,6 +71,12 @@ class ContainersTest extends MainTestCase
         $this->assertIsString($containerId);
 
         $this->docker->deleteContainer($containerId);
+    }
+
+    public function testFailRunContainer()
+    {
+        $this->expectException(ResourceNotFound::class);
+        $this->docker->startContainer('fakeid');
     }
 
     public function testInspectContainer()
@@ -75,6 +103,19 @@ class ContainersTest extends MainTestCase
         $this->docker->deleteContainer($containerId);
     }
 
+    public function testFailInspectContainer()
+    {
+        $this->expectException(ResourceNotFound::class);
+        $this->docker->inspectContainer('fakeid');
+    }
+
+    public function testExceptionInspectContainer()
+    {
+        $this->expectException(\Exception::class);
+        $docker = new DockerClient(['local_endpoint' => 'http://127.0.0.1:1234']);
+        $docker->inspectContainer('fakeid');
+    }
+
     public function testStopContainer()
     {
         $containerId = $this->docker->runContainer('test-container', [
@@ -95,6 +136,12 @@ class ContainersTest extends MainTestCase
         $this->assertFalse($containerDetails['State']['Running']);
 
         $this->docker->deleteContainer($containerId);
+    }
+
+    public function testFailStopContainer()
+    {
+        $this->expectException(ResourceNotFound::class);
+        $this->docker->stopContainer('fakeid');
     }
 
     public function testDeleteContainer()
